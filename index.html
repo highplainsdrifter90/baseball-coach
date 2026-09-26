@@ -1061,7 +1061,29 @@ Save Play
 </button>
 
 <div id="savedPlayList"></div>
+<div class="playGrid" style="margin-top:8px;">
+    <button
+        class="controlButton"
+        style="background:#2874a6;"
+        onclick="exportPlays()">
+        Export Plays
+    </button>
 
+    <button
+        class="controlButton"
+        style="background:#196f3d;"
+        onclick="document.getElementById('importPlaysFile').click()">
+        Import Plays
+    </button>
+</div>
+
+<input
+    id="importPlaysFile"
+    type="file"
+    accept=".json,application/json"
+    style="display:none"
+    onchange="importPlays(event)"
+>
 </div>
 
 
@@ -2598,7 +2620,87 @@ function showSavedPlays() {
         }
     );
 }
+function exportPlays() {
+    const saved =
+        localStorage.getItem(
+            "baseballCoachPlays30"
+        ) || "{}";
 
+    const blob =
+        new Blob(
+            [saved],
+            { type: "application/json" }
+        );
+
+    const url =
+        URL.createObjectURL(blob);
+
+    const link =
+        document.createElement("a");
+
+    link.href = url;
+    link.download =
+        "baseball-coach-plays.json";
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    URL.revokeObjectURL(url);
+}
+
+
+function importPlays(event) {
+    const file =
+        event.target.files[0];
+
+    if(!file) {
+        return;
+    }
+
+    const reader =
+        new FileReader();
+
+    reader.onload =
+        function(e) {
+
+            try {
+                const imported =
+                    JSON.parse(
+                        e.target.result
+                    );
+
+                if(
+                    typeof imported !== "object" ||
+                    imported === null ||
+                    Array.isArray(imported)
+                ) {
+                    throw new Error();
+                }
+
+                localStorage.setItem(
+                    "baseballCoachPlays30",
+                    JSON.stringify(imported)
+                );
+
+                showSavedPlays();
+
+                alert(
+                    "Plays imported successfully."
+                );
+
+            } catch(error) {
+
+                alert(
+                    "That file is not a valid Baseball Coach play file."
+                );
+            }
+
+            event.target.value = "";
+        };
+
+    reader.readAsText(file);
+}
 
 /* =========================================
    PRESETS
