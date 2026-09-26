@@ -259,20 +259,28 @@ body {
 
 #controls {
     width: 320px;
-
     flex-shrink: 0;
-
     padding: 18px;
 
     background: #101820;
 
     overflow-y: auto;
+    overflow-x: hidden;
+
+    height: 100dvh;
+    max-height: 100dvh;
+    min-height: 0;
+
+    box-sizing: border-box;
 
     border-left:
         1px solid rgba(255,255,255,.12);
 
     touch-action: pan-y;
-}
+    -webkit-overflow-scrolling: touch;
+
+    padding-bottom: calc(30px + env(safe-area-inset-bottom));
+}}
 
 h1 {
     margin: 0 0 6px 0;
