@@ -1,0 +1,3014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0,
+    maximum-scale=1.0, user-scalable=no"
+>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<title>Baseball Coach 3.0</title>
+
+<style>
+
+/* =========================================
+   PAGE
+========================================= */
+
+* {
+    box-sizing: border-box;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #17202a;
+    color: white;
+}
+
+#app {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+}
+
+
+/* =========================================
+   FIELD
+========================================= */
+
+#field {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    background: #3f9145;
+    touch-action: none;
+}
+
+#fieldDrawing {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+
+/* =========================================
+   CLICKABLE BASES
+========================================= */
+
+.baseButton {
+    position: absolute;
+
+    width: 62px;
+    height: 62px;
+
+    transform: translate(-50%, -50%);
+
+    border-radius: 50%;
+
+    border: none;
+    padding: 0;
+
+    background: transparent;
+
+    cursor: pointer;
+
+    touch-action: manipulation;
+
+    z-index: 5;
+}
+
+.baseButton:hover {
+    background: rgba(255,255,255,.14);
+}
+
+.baseButton:active {
+    transform:
+        translate(-50%, -50%)
+        scale(.88);
+}
+
+#homeButton {
+    left: 50%;
+    top: 83.125%;
+}
+
+#firstButton {
+    left: 65.5%;
+    top: 65.625%;
+}
+
+#secondButton {
+    left: 50%;
+    top: 48.125%;
+}
+
+#thirdButton {
+    left: 34.5%;
+    top: 65.625%;
+}
+
+
+/* =========================================
+   RUNNERS
+========================================= */
+
+.runner {
+    position: absolute;
+
+    width: 38px;
+    height: 38px;
+
+    border-radius: 50%;
+
+    background: #e53935;
+
+    border: 4px solid white;
+
+    color: white;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    font-size: 15px;
+    font-weight: 900;
+
+    transform: translate(-50%, -50%);
+
+    box-shadow:
+        0 3px 8px rgba(0,0,0,.45);
+
+    cursor: grab;
+
+    touch-action: none;
+
+    z-index: 25;
+}
+
+.runner:active {
+    cursor: grabbing;
+}
+
+
+/* =========================================
+   DEFENSIVE PLAYERS
+========================================= */
+
+.player {
+    position: absolute;
+
+    width: 54px;
+    height: 54px;
+
+    border-radius: 50%;
+
+    background: #147bd1;
+
+    border: 4px solid white;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: white;
+
+    font-size: 15px;
+    font-weight: 900;
+
+    transform: translate(-50%, -50%);
+
+    box-shadow:
+        0 3px 9px rgba(0,0,0,.45);
+
+    cursor: grab;
+
+    touch-action: none;
+
+    z-index: 20;
+}
+
+.player:active {
+    cursor: grabbing;
+}
+
+
+/* =========================================
+   BASEBALL
+========================================= */
+
+#baseball {
+    position: absolute;
+
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transform: translate(-50%, -50%);
+
+    font-size: 30px;
+    line-height: 1;
+
+    filter: drop-shadow(0 3px 4px rgba(0,0,0,.5));
+
+    cursor: grab;
+
+    touch-action: none;
+
+    z-index: 30;
+}
+
+#baseball:active {
+    cursor: grabbing;
+}
+
+
+/* =========================================
+   ANIMATION
+========================================= */
+
+.animateMove {
+    transition:
+        left .75s ease-in-out,
+        top .75s ease-in-out;
+}
+
+
+/* =========================================
+   SIDEBAR
+========================================= */
+
+#controls {
+    width: 320px;
+
+    flex-shrink: 0;
+
+    padding: 18px;
+
+    background: #101820;
+
+    overflow-y: auto;
+
+    border-left:
+        1px solid rgba(255,255,255,.12);
+
+    touch-action: pan-y;
+}
+
+h1 {
+    margin: 0 0 6px 0;
+    font-size: 24px;
+}
+
+.description {
+    color: #aab7b8;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.tapHint {
+    margin-top: 10px;
+
+    padding: 9px;
+
+    border-radius: 8px;
+
+    background: rgba(255,255,255,.07);
+
+    color: #f4d03f;
+
+    font-size: 13px;
+
+    line-height: 1.4;
+}
+
+h2 {
+    margin: 22px 0 9px 0;
+
+    color: #aeb6bf;
+
+    font-size: 14px;
+
+    letter-spacing: 1px;
+}
+
+
+/* =========================================
+   BUTTONS
+========================================= */
+
+button {
+    font-family: inherit;
+}
+
+.controlButton {
+    width: 100%;
+
+    border: 0;
+
+    border-radius: 9px;
+
+    padding: 11px 8px;
+
+    color: white;
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    touch-action: manipulation;
+}
+#updateStepButton,
+#deleteStepButton {
+    background: #e67e22;
+}
+.controlButton:active {
+    transform: scale(.97);
+}
+
+.controlButton:disabled {
+    opacity: .42;
+    cursor: default;
+}
+
+
+/* =========================================
+   RUNNER BUTTONS
+========================================= */
+
+.runnerGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+}
+
+.runnerButton {
+    background: #a93226;
+}
+
+.runnerButton.active {
+    background: #e74c3c;
+    outline: 3px solid white;
+    outline-offset: -3px;
+}
+
+#clearBases {
+    margin-top: 7px;
+    background: #7d3c98;
+}
+
+#situationDisplay {
+    margin-top: 8px;
+    padding: 10px;
+
+    border-radius: 8px;
+
+    background: rgba(255,255,255,.08);
+
+    color: #d5dbdb;
+
+    text-align: center;
+    font-size: 13px;
+}
+
+
+/* =========================================
+   PLAY BUILDER
+========================================= */
+
+.playBuilder {
+    padding: 12px;
+
+    border-radius: 10px;
+
+    background: rgba(255,255,255,.07);
+
+    border: 1px solid rgba(255,255,255,.12);
+}
+
+#stepDisplay {
+    margin-bottom: 9px;
+
+    padding: 9px;
+
+    border-radius: 8px;
+
+    background: #17202a;
+
+    text-align: center;
+
+    color: #f4d03f;
+
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.playGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+}
+
+#newPlayButton {
+    background: #566573;
+}
+
+#addStepButton {
+    background: #168bd2;
+}
+
+#previousButton,
+#nextButton {
+    background: #5d6d7e;
+}
+
+#playButton {
+    background: #238b57;
+}
+
+#stopButton {
+    background: #a93226;
+}
+
+#playName {
+    width: 100%;
+
+    margin-top: 10px;
+
+    padding: 11px;
+
+    border: 0;
+
+    border-radius: 8px;
+
+    background: white;
+
+    color: #17202a;
+
+    font-size: 15px;
+
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+#savePlayButton {
+    margin-top: 7px;
+    background: #7d3c98;
+}
+
+.savedPlayRow {
+    display: grid;
+    grid-template-columns: 1fr 44px;
+    gap: 6px;
+    margin-top: 7px;
+}
+
+.savedPlayLoad {
+    background: #117864;
+    text-align: left;
+}
+
+.savedPlayDelete {
+    background: #922b21;
+    font-size: 20px;
+    padding: 0;
+}
+
+.emptyPlay {
+    margin-top: 8px;
+    color: #85929e;
+    font-size: 13px;
+}
+
+
+/* =========================================
+   QUICK DEFENSE
+========================================= */
+
+.quickGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+}
+
+.quickButton {
+    background: #1f618d;
+}
+
+.quickButton:last-child {
+    grid-column: 1 / -1;
+}
+
+
+/* =========================================
+   PRESETS
+========================================= */
+
+#presetName {
+    width: 100%;
+
+    padding: 12px;
+    margin-bottom: 7px;
+
+    border: 0;
+    border-radius: 9px;
+
+    background: white;
+    color: #17202a;
+
+    font-size: 15px;
+
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+#savePresetButton {
+    background: #168bd2;
+}
+
+.presetRow {
+    display: grid;
+    grid-template-columns: 1fr 44px;
+    gap: 6px;
+    margin-top: 7px;
+}
+
+.presetLoad {
+    background: #238b57;
+    text-align: left;
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.presetDelete {
+    background: #a93226;
+    padding: 0;
+    font-size: 20px;
+}
+
+.emptyPreset {
+    margin-top: 8px;
+    color: #85929e;
+    font-size: 13px;
+}
+
+
+/* =========================================
+   RESET
+========================================= */
+
+#resetButton {
+    background: #566573;
+}
+
+
+/* =========================================
+   SMALL SCREENS
+========================================= */
+
+@media (max-width: 900px) {
+
+    #controls {
+        width: 285px;
+        padding: 14px;
+    }
+
+    .player {
+        width: 48px;
+        height: 48px;
+        font-size: 13px;
+    }
+
+    .runner {
+        width: 34px;
+        height: 34px;
+        font-size: 13px;
+    }
+
+    .baseButton {
+        width: 54px;
+        height: 54px;
+    }
+
+    #baseball {
+        width: 36px;
+        height: 36px;
+        font-size: 27px;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+<div id="field">
+
+
+<!-- =====================================
+     FIELD DRAWING
+     SAME APPROVED GEOMETRY
+===================================== -->
+
+<svg
+    id="fieldDrawing"
+    viewBox="0 0 1000 800"
+    preserveAspectRatio="none"
+>
+
+<!-- OUTFIELD -->
+
+<path
+    d="
+    M 500 755
+    L 75 400
+    Q 115 105 500 55
+    Q 885 105 925 400
+    Z
+    "
+    fill="#3f9145"
+    stroke="#256b35"
+    stroke-width="4"
+/>
+
+
+<!-- INFIELD DIRT -->
+
+<path
+    d="
+    M 500 720
+    L 300 545
+    Q 275 470 305 405
+    Q 355 310 500 300
+    Q 645 310 695 405
+    Q 725 470 700 545
+    Z
+    "
+    fill="#d2a064"
+/>
+
+
+<!-- INNER GRASS -->
+
+<polygon
+    points="
+    500,665
+    655,525
+    500,385
+    345,525
+    "
+    fill="#3f9145"
+/>
+
+
+<!-- LEFT FOUL LINE -->
+
+<line
+    x1="500"
+    y1="665"
+    x2="95"
+    y2="325"
+    stroke="white"
+    stroke-width="4"
+/>
+
+
+<!-- RIGHT FOUL LINE -->
+
+<line
+    x1="500"
+    y1="665"
+    x2="905"
+    y2="325"
+    stroke="white"
+    stroke-width="4"
+/>
+
+
+<!-- PITCHER MOUND -->
+
+<circle
+    cx="500"
+    cy="525"
+    r="34"
+    fill="#d2a064"
+/>
+
+
+<!-- PITCHING RUBBER -->
+
+<rect
+    x="486"
+    y="521"
+    width="28"
+    height="8"
+    rx="2"
+    fill="white"
+/>
+
+
+<!-- HOME DIRT -->
+
+<circle
+    cx="500"
+    cy="665"
+    r="46"
+    fill="#d2a064"
+/>
+
+
+<!-- THIRD BASE -->
+
+<rect
+    x="331"
+    y="511"
+    width="28"
+    height="28"
+    fill="white"
+    stroke="#d5d8dc"
+    stroke-width="2"
+    transform="rotate(45 345 525)"
+/>
+
+
+<!-- SECOND BASE -->
+
+<rect
+    x="486"
+    y="371"
+    width="28"
+    height="28"
+    fill="white"
+    stroke="#d5d8dc"
+    stroke-width="2"
+    transform="rotate(45 500 385)"
+/>
+
+
+<!-- FIRST BASE -->
+
+<rect
+    x="641"
+    y="511"
+    width="28"
+    height="28"
+    fill="white"
+    stroke="#d5d8dc"
+    stroke-width="2"
+    transform="rotate(45 655 525)"
+/>
+
+
+<!-- HOME PLATE -->
+
+<polygon
+    points="
+    482,650
+    518,650
+    518,669
+    500,686
+    482,669
+    "
+    fill="white"
+    stroke="#d5d8dc"
+    stroke-width="2"
+/>
+
+</svg>
+
+
+<!-- CLICKABLE BASES -->
+
+<button
+    class="baseButton"
+    id="homeButton"
+    onclick="toggleBase('home')"
+    aria-label="Toggle home">
+</button>
+
+<button
+    class="baseButton"
+    id="firstButton"
+    onclick="toggleBase('first')"
+    aria-label="Toggle first base">
+</button>
+
+<button
+    class="baseButton"
+    id="secondButton"
+    onclick="toggleBase('second')"
+    aria-label="Toggle second base">
+</button>
+
+<button
+    class="baseButton"
+    id="thirdButton"
+    onclick="toggleBase('third')"
+    aria-label="Toggle third base">
+</button>
+
+
+<!-- RUNNERS -->
+
+<div
+    class="runner"
+    id="runnerHome"
+    data-runner="home">
+R
+</div>
+
+<div
+    class="runner"
+    id="runnerFirst"
+    data-runner="first">
+R
+</div>
+
+<div
+    class="runner"
+    id="runnerSecond"
+    data-runner="second">
+R
+</div>
+
+<div
+    class="runner"
+    id="runnerThird"
+    data-runner="third">
+R
+</div>
+
+
+<!-- BASEBALL -->
+
+<div id="baseball">
+⚾
+</div>
+
+
+</div>
+
+
+<!-- =====================================
+     SIDEBAR
+===================================== -->
+
+<div id="controls">
+
+<h1>
+⚾ Baseball Coach 3.0
+</h1>
+
+<div class="description">
+Drag defenders, runners and the baseball anywhere on the field.
+</div>
+
+<div class="tapHint">
+Tap a base to add a runner. Once the red runner appears, you can drag him anywhere.
+</div>
+
+
+<!-- RUNNERS -->
+
+<h2>BASE RUNNERS</h2>
+
+<div class="runnerGrid">
+
+<button
+    class="controlButton runnerButton"
+    data-situation="none"
+    onclick="setSituation('none')">
+Empty
+</button>
+
+<button
+    class="controlButton runnerButton"
+    data-situation="first"
+    onclick="setSituation('first')">
+1st
+</button>
+
+<button
+    class="controlButton runnerButton"
+    data-situation="second"
+    onclick="setSituation('second')">
+2nd
+</button>
+
+<button
+    class="controlButton runnerButton"
+    data-situation="third"
+    onclick="setSituation('third')">
+3rd
+</button>
+
+<button
+    class="controlButton runnerButton"
+    data-situation="firstSecond"
+    onclick="setSituation('firstSecond')">
+1st + 2nd
+</button>
+
+<button
+    class="controlButton runnerButton"
+    data-situation="firstThird"
+    onclick="setSituation('firstThird')">
+1st + 3rd
+</button>
+
+<button
+    class="controlButton runnerButton"
+    data-situation="secondThird"
+    onclick="setSituation('secondThird')">
+2nd + 3rd
+</button>
+
+<button
+    class="controlButton runnerButton"
+    data-situation="loaded"
+    onclick="setSituation('loaded')">
+Loaded
+</button>
+
+</div>
+
+<button
+    class="controlButton"
+    id="clearBases"
+    onclick="clearAllRunners()">
+Clear All Runners
+</button>
+
+<div id="situationDisplay">
+Bases Empty
+</div>
+
+
+<!-- PLAY BUILDER -->
+
+<h2>PLAY BUILDER</h2>
+
+<div class="playBuilder">
+
+<div id="stepDisplay">
+No Steps Recorded
+</div>
+
+<div class="playGrid">
+
+<button
+    class="controlButton"
+    id="newPlayButton"
+    onclick="newPlay()">
+New Play
+</button>
+
+<button
+    class="controlButton"
+    id="addStepButton"
+    onclick="addStep()">
++ Add Step
+</button>
+
+<button
+    class="controlButton"
+    id="updateStepButton"
+    onclick="updateStep()">
+Update Step
+</button>
+
+<button
+    class="controlButton"
+    id="deleteStepButton"
+    onclick="deleteStep()">
+Delete Step
+</button>
+
+<button
+    class="controlButton"
+    id="previousButton"
+    onclick="previousStep()">
+◀ Previous
+</button>
+
+<button
+    class="controlButton"
+    id="nextButton"
+    onclick="nextStep()">
+Next ▶
+</button>
+
+<button
+    class="controlButton"
+    id="playButton"
+    onclick="playSequence()">
+▶ Play
+</button>
+
+<button
+    class="controlButton"
+    id="stopButton"
+    onclick="stopSequence()">
+■ Stop
+</button>
+
+</div>
+
+<input
+    id="playName"
+    type="text"
+    placeholder="Example: 6-4-3 Double Play"
+>
+
+<button
+    class="controlButton"
+    id="savePlayButton"
+    onclick="savePlay()">
+Save Play
+</button>
+
+<div id="savedPlayList"></div>
+
+</div>
+
+
+<!-- QUICK DEFENSE -->
+
+<h2>QUICK DEFENSE</h2>
+
+<div class="quickGrid">
+
+<button
+    class="controlButton quickButton"
+    onclick="applyDefense('normal')">
+Normal
+</button>
+
+<button
+    class="controlButton quickButton"
+    onclick="applyDefense('doublePlay')">
+Double Play
+</button>
+
+<button
+    class="controlButton quickButton"
+    onclick="applyDefense('infieldIn')">
+Infield In
+</button>
+
+<button
+    class="controlButton quickButton"
+    onclick="applyDefense('cornersIn')">
+Corners In
+</button>
+
+<button
+    class="controlButton quickButton"
+    onclick="applyDefense('noDoubles')">
+No Doubles
+</button>
+
+</div>
+
+
+<!-- PRESETS -->
+
+<h2>MY PRESETS</h2>
+
+<input
+    id="presetName"
+    type="text"
+    placeholder="Example: Bunt Defense"
+>
+
+<button
+    class="controlButton"
+    id="savePresetButton"
+    onclick="savePreset()">
+Save Current Situation
+</button>
+
+<div id="presetList"></div>
+
+
+<!-- RESET -->
+
+<h2>FIELD</h2>
+
+<button
+    class="controlButton"
+    id="resetButton"
+    onclick="resetField()">
+Reset Everything
+</button>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =========================================
+   BASIC REFERENCES
+========================================= */
+
+const field =
+    document.getElementById("field");
+
+const baseball =
+    document.getElementById("baseball");
+
+const players = {};
+
+const runners = {
+    home: document.getElementById("runnerHome"),
+    first: document.getElementById("runnerFirst"),
+    second: document.getElementById("runnerSecond"),
+    third: document.getElementById("runnerThird")
+};
+
+
+/* =========================================
+   STARTING POSITIONS
+========================================= */
+
+const startingPositions = {
+
+    P: [50,65.5],
+
+    C: [50,91],
+
+    "1B":[72,60],
+
+    "2B":[59,55],
+
+    SS:[41,55],
+
+    "3B":[28,60],
+
+    LF:[24,38],
+
+    CF:[50,27],
+
+    RF:[76,38]
+
+};
+
+
+const defaultRunnerPositions = {
+
+    home:[54,83],
+
+    first:[69,64],
+
+    second:[50,43],
+
+    third:[31,64]
+
+};
+
+
+const startingBallPosition =
+    [50,77];
+
+
+const occupied = {
+
+    home:false,
+
+    first:false,
+
+    second:false,
+
+    third:false
+
+};
+
+
+/* =========================================
+   PLAY BUILDER STATE
+========================================= */
+
+let playSteps = [];
+
+let currentStep = -1;
+
+let playing = false;
+
+let playTimer = null;
+
+
+/* =========================================
+   MOVE ITEM
+========================================= */
+
+function moveItem(item,x,y) {
+
+    item.dataset.x =
+        String(x);
+
+    item.dataset.y =
+        String(y);
+
+    item.style.left =
+        x + "%";
+
+    item.style.top =
+        y + "%";
+}
+
+
+/* =========================================
+   GET ITEM POSITION
+========================================= */
+
+function getItemPosition(item) {
+
+    return [
+
+        Number(item.dataset.x),
+
+        Number(item.dataset.y)
+
+    ];
+}
+
+
+/* =========================================
+   DRAGGING
+========================================= */
+
+function makeDraggable(item) {
+
+    item.addEventListener(
+        "pointerdown",
+        function(event) {
+
+            if(playing) {
+                return;
+            }
+
+            event.preventDefault();
+
+            item.classList.remove(
+                "animateMove"
+            );
+
+            item.setPointerCapture(
+                event.pointerId
+            );
+
+
+            function drag(moveEvent) {
+
+                const rect =
+                    field.getBoundingClientRect();
+
+
+                let x =
+                    (
+                        moveEvent.clientX -
+                        rect.left
+                    )
+                    /
+                    rect.width
+                    *
+                    100;
+
+
+                let y =
+                    (
+                        moveEvent.clientY -
+                        rect.top
+                    )
+                    /
+                    rect.height
+                    *
+                    100;
+
+
+                x =
+                    Math.max(
+                        3,
+                        Math.min(97,x)
+                    );
+
+
+                y =
+                    Math.max(
+                        3,
+                        Math.min(97,y)
+                    );
+
+
+                moveItem(
+                    item,
+                    x,
+                    y
+                );
+            }
+
+
+            function stopDrag() {
+
+                item.removeEventListener(
+                    "pointermove",
+                    drag
+                );
+
+                item.removeEventListener(
+                    "pointerup",
+                    stopDrag
+                );
+
+                item.removeEventListener(
+                    "pointercancel",
+                    stopDrag
+                );
+            }
+
+
+            item.addEventListener(
+                "pointermove",
+                drag
+            );
+
+            item.addEventListener(
+                "pointerup",
+                stopDrag
+            );
+
+            item.addEventListener(
+                "pointercancel",
+                stopDrag
+            );
+
+        }
+    );
+}
+
+
+/* =========================================
+   CREATE DEFENSE
+========================================= */
+
+function createPlayer(name,x,y) {
+
+    const player =
+        document.createElement("div");
+
+    player.className =
+        "player";
+
+    player.textContent =
+        name;
+
+    field.appendChild(player);
+
+    moveItem(
+        player,
+        x,
+        y
+    );
+
+    makeDraggable(player);
+
+    return player;
+}
+
+
+function createDefense() {
+
+    Object.entries(
+        startingPositions
+    )
+    .forEach(
+        function(entry) {
+
+            const name =
+                entry[0];
+
+            const position =
+                entry[1];
+
+            players[name] =
+                createPlayer(
+                    name,
+                    position[0],
+                    position[1]
+                );
+        }
+    );
+}
+
+
+/* =========================================
+   RUNNERS
+========================================= */
+
+function resetRunnerPosition(name) {
+
+    const position =
+        defaultRunnerPositions[name];
+
+    moveItem(
+        runners[name],
+        position[0],
+        position[1]
+    );
+}
+
+
+function showRunner(name) {
+
+    if(!occupied[name]) {
+
+        occupied[name] = true;
+
+        resetRunnerPosition(name);
+    }
+
+    runners[name].style.display =
+        "flex";
+}
+
+
+function hideRunner(name) {
+
+    occupied[name] = false;
+
+    runners[name].style.display =
+        "none";
+}
+
+
+function toggleBase(name) {
+
+    if(playing) {
+        return;
+    }
+
+    if(occupied[name]) {
+
+        hideRunner(name);
+
+    } else {
+
+        showRunner(name);
+    }
+
+    updateRunnerUI();
+}
+
+
+function setSituation(situation) {
+
+    if(playing) {
+        return;
+    }
+
+    hideRunner("first");
+    hideRunner("second");
+    hideRunner("third");
+
+
+    if(situation === "first") {
+        showRunner("first");
+    }
+
+    if(situation === "second") {
+        showRunner("second");
+    }
+
+    if(situation === "third") {
+        showRunner("third");
+    }
+
+    if(situation === "firstSecond") {
+
+        showRunner("first");
+        showRunner("second");
+    }
+
+    if(situation === "firstThird") {
+
+        showRunner("first");
+        showRunner("third");
+    }
+
+    if(situation === "secondThird") {
+
+        showRunner("second");
+        showRunner("third");
+    }
+
+    if(situation === "loaded") {
+
+        showRunner("first");
+        showRunner("second");
+        showRunner("third");
+    }
+
+    updateRunnerUI();
+}
+
+
+function clearAllRunners() {
+
+    hideRunner("home");
+
+    hideRunner("first");
+
+    hideRunner("second");
+
+    hideRunner("third");
+
+    updateRunnerUI();
+}
+
+
+/* =========================================
+   RUNNER UI
+========================================= */
+
+function getSituation() {
+
+    if(
+        occupied.first &&
+        occupied.second &&
+        occupied.third
+    ) {
+        return "loaded";
+    }
+
+    if(
+        occupied.first &&
+        occupied.second
+    ) {
+        return "firstSecond";
+    }
+
+    if(
+        occupied.first &&
+        occupied.third
+    ) {
+        return "firstThird";
+    }
+
+    if(
+        occupied.second &&
+        occupied.third
+    ) {
+        return "secondThird";
+    }
+
+    if(occupied.first) {
+        return "first";
+    }
+
+    if(occupied.second) {
+        return "second";
+    }
+
+    if(occupied.third) {
+        return "third";
+    }
+
+    return "none";
+}
+
+
+function updateRunnerUI() {
+
+    const labels = {
+
+        none:"Bases Empty",
+
+        first:"Runner on 1st",
+
+        second:"Runner on 2nd",
+
+        third:"Runner on 3rd",
+
+        firstSecond:
+            "Runners on 1st + 2nd",
+
+        firstThird:
+            "Runners on 1st + 3rd",
+
+        secondThird:
+            "Runners on 2nd + 3rd",
+
+        loaded:
+            "Bases Loaded"
+
+    };
+
+
+    document.getElementById(
+        "situationDisplay"
+    ).textContent =
+        labels[getSituation()];
+
+
+    const current =
+        getSituation();
+
+
+    document.querySelectorAll(
+        ".runnerButton"
+    )
+    .forEach(
+        function(button) {
+
+            button.classList.remove(
+                "active"
+            );
+
+            if(
+                button.dataset.situation
+                ===
+                current
+            ) {
+
+                button.classList.add(
+                    "active"
+                );
+            }
+        }
+    );
+}
+
+
+/* =========================================
+   DEFENSIVE FORMATIONS
+========================================= */
+
+const defensiveFormations = {
+
+    normal: {
+
+        P:[50,65.5],
+
+        C:[50,91],
+
+        "1B":[72,60],
+
+        "2B":[59,55],
+
+        SS:[41,55],
+
+        "3B":[28,60],
+
+        LF:[24,38],
+
+        CF:[50,27],
+
+        RF:[76,38]
+    },
+
+
+    doublePlay: {
+
+        P:[50,65.5],
+
+        C:[50,91],
+
+        "1B":[70,59],
+
+        "2B":[55,52],
+
+        SS:[45,52],
+
+        "3B":[29,59],
+
+        LF:[24,38],
+
+        CF:[50,27],
+
+        RF:[76,38]
+    },
+
+
+    infieldIn: {
+
+        P:[50,65.5],
+
+        C:[50,91],
+
+        "1B":[65,62],
+
+        "2B":[56,61],
+
+        SS:[44,61],
+
+        "3B":[35,62],
+
+        LF:[24,38],
+
+        CF:[50,27],
+
+        RF:[76,38]
+    },
+
+
+    cornersIn: {
+
+        P:[50,65.5],
+
+        C:[50,91],
+
+        "1B":[64,64],
+
+        "2B":[59,55],
+
+        SS:[41,55],
+
+        "3B":[36,64],
+
+        LF:[24,38],
+
+        CF:[50,27],
+
+        RF:[76,38]
+    },
+
+
+    noDoubles: {
+
+        P:[50,65.5],
+
+        C:[50,91],
+
+        "1B":[75,55],
+
+        "2B":[61,50],
+
+        SS:[39,50],
+
+        "3B":[25,55],
+
+        LF:[19,32],
+
+        CF:[50,21],
+
+        RF:[81,32]
+    }
+
+};
+
+
+function applyDefense(name) {
+
+    if(playing) {
+        return;
+    }
+
+    const formation =
+        defensiveFormations[name];
+
+    if(!formation) {
+        return;
+    }
+
+
+    Object.entries(
+        formation
+    )
+    .forEach(
+        function(entry) {
+
+            const position =
+                entry[0];
+
+            const coordinates =
+                entry[1];
+
+            moveItem(
+                players[position],
+                coordinates[0],
+                coordinates[1]
+            );
+        }
+    );
+}
+
+
+/* =========================================
+   FIELD SNAPSHOT
+========================================= */
+
+function captureFieldState() {
+
+    const defense = {};
+
+    Object.entries(players)
+    .forEach(
+        function(entry) {
+
+            defense[entry[0]] =
+                getItemPosition(
+                    entry[1]
+                );
+        }
+    );
+
+
+    const runnerState = {};
+
+    Object.keys(runners)
+    .forEach(
+        function(name) {
+
+            runnerState[name] = {
+
+                active:
+                    occupied[name],
+
+                position:
+                    getItemPosition(
+                        runners[name]
+                    )
+            };
+        }
+    );
+
+
+    return {
+
+        defense:defense,
+
+        runners:runnerState,
+
+        ball:
+            getItemPosition(baseball)
+
+    };
+}
+
+
+/* =========================================
+   APPLY FIELD STATE
+========================================= */
+
+function applyFieldState(
+    state,
+    animate
+) {
+
+    if(!state) {
+        return;
+    }
+
+
+    Object.entries(
+        state.defense
+    )
+    .forEach(
+        function(entry) {
+
+            const item =
+                players[entry[0]];
+
+            if(!item) {
+                return;
+            }
+
+            setAnimation(
+                item,
+                animate
+            );
+
+            moveItem(
+                item,
+                entry[1][0],
+                entry[1][1]
+            );
+        }
+    );
+
+
+    Object.keys(runners)
+    .forEach(
+        function(name) {
+
+            const saved =
+                state.runners[name];
+
+            if(!saved) {
+                return;
+            }
+
+
+            occupied[name] =
+                saved.active;
+
+
+            const runner =
+                runners[name];
+
+
+            if(saved.active) {
+
+                runner.style.display =
+                    "flex";
+
+                setAnimation(
+                    runner,
+                    animate
+                );
+
+                moveItem(
+                    runner,
+                    saved.position[0],
+                    saved.position[1]
+                );
+
+            } else {
+
+                runner.style.display =
+                    "none";
+            }
+        }
+    );
+
+
+    setAnimation(
+        baseball,
+        animate
+    );
+
+    moveItem(
+        baseball,
+        state.ball[0],
+        state.ball[1]
+    );
+
+
+    updateRunnerUI();
+}
+
+
+function setAnimation(
+    item,
+    enabled
+) {
+
+    if(enabled) {
+
+        item.classList.add(
+            "animateMove"
+        );
+
+    } else {
+
+        item.classList.remove(
+            "animateMove"
+        );
+    }
+}
+
+
+function clearAnimations() {
+
+    Object.values(players)
+    .forEach(
+        function(item) {
+
+            item.classList.remove(
+                "animateMove"
+            );
+        }
+    );
+
+
+    Object.values(runners)
+    .forEach(
+        function(item) {
+
+            item.classList.remove(
+                "animateMove"
+            );
+        }
+    );
+
+
+    baseball.classList.remove(
+        "animateMove"
+    );
+}
+
+
+/* =========================================
+   PLAY BUILDER
+========================================= */
+
+function newPlay() {
+
+    stopSequence();
+
+    const shouldClear =
+        playSteps.length === 0
+        ||
+        confirm(
+            "Start a new play? Current unsaved steps will be cleared."
+        );
+
+
+    if(!shouldClear) {
+        return;
+    }
+
+
+    playSteps = [];
+
+    currentStep = -1;
+
+    document.getElementById(
+        "playName"
+    ).value = "";
+
+    updatePlayControls();
+}
+
+
+function addStep() {
+
+    if(playing) {
+        return;
+    }
+
+
+    const state =
+        captureFieldState();
+
+
+    playSteps.push(
+        state
+    );
+
+
+    currentStep =
+        playSteps.length - 1;
+
+
+    updatePlayControls();
+}
+function updateStep() {
+    if (
+        playing ||
+        playSteps.length === 0 ||
+        currentStep < 0
+    ) {
+        return;
+    }
+
+    playSteps[currentStep] =
+        captureFieldState();
+
+    updatePlayControls();
+}
+
+function deleteStep() {
+    if (
+        playing ||
+        playSteps.length === 0 ||
+        currentStep < 0
+    ) {
+        return;
+    }
+
+    playSteps.splice(currentStep, 1);
+
+    if (playSteps.length === 0) {
+        currentStep = -1;
+    } else {
+        currentStep = Math.min(
+            currentStep,
+            playSteps.length - 1
+        );
+
+        applyFieldState(
+            playSteps[currentStep]
+        );
+    }
+
+    updatePlayControls();
+}
+
+function previousStep() {
+
+    if(
+        playing ||
+        playSteps.length === 0
+    ) {
+        return;
+    }
+
+
+    if(currentStep > 0) {
+
+        currentStep--;
+
+        applyFieldState(
+            playSteps[currentStep],
+            false
+        );
+    }
+
+
+    updatePlayControls();
+}
+
+
+function nextStep() {
+
+    if(
+        playing ||
+        playSteps.length === 0
+    ) {
+        return;
+    }
+
+
+    if(
+        currentStep <
+        playSteps.length - 1
+    ) {
+
+        currentStep++;
+
+        applyFieldState(
+            playSteps[currentStep],
+            false
+        );
+    }
+
+
+    updatePlayControls();
+}
+
+
+/* =========================================
+   PLAY ANIMATION
+========================================= */
+
+function playSequence() {
+
+    if(
+        playing ||
+        playSteps.length < 2
+    ) {
+        return;
+    }
+
+
+    playing = true;
+
+    currentStep = 0;
+
+
+    applyFieldState(
+        playSteps[0],
+        false
+    );
+
+
+    updatePlayControls();
+
+
+    let index = 1;
+
+
+    playTimer =
+        setInterval(
+            function() {
+
+                if(
+                    !playing ||
+                    index >=
+                    playSteps.length
+                ) {
+
+                    stopSequence();
+                    return;
+                }
+
+
+                currentStep =
+                    index;
+
+
+                applyFieldState(
+                    playSteps[index],
+                    true
+                );
+
+
+                updatePlayControls();
+
+
+                index++;
+
+            },
+            1100
+        );
+}
+
+
+function stopSequence() {
+
+    playing = false;
+
+
+    if(playTimer) {
+
+        clearInterval(
+            playTimer
+        );
+
+        playTimer = null;
+    }
+
+
+    clearAnimations();
+
+    updatePlayControls();
+}
+
+
+/* =========================================
+   PLAY CONTROLS
+========================================= */
+
+function updatePlayControls() {
+
+    const display =
+        document.getElementById(
+            "stepDisplay"
+        );
+
+
+    if(playSteps.length === 0) {
+
+        display.textContent =
+            "No Steps Recorded";
+
+    } else {
+
+        display.textContent =
+            "Step " +
+            (currentStep + 1) +
+            " of " +
+            playSteps.length;
+    }
+
+
+    document.getElementById(
+        "previousButton"
+    ).disabled =
+        playing ||
+        currentStep <= 0;
+
+
+    document.getElementById(
+        "nextButton"
+    ).disabled =
+        playing ||
+        currentStep >=
+        playSteps.length - 1;
+
+
+    document.getElementById(
+        "playButton"
+    ).disabled =
+        playing ||
+        playSteps.length < 2;
+
+
+    document.getElementById(
+        "stopButton"
+    ).disabled =
+        !playing;
+
+
+    document.getElementById(
+        "addStepButton"
+    ).disabled =
+        playing;
+}
+
+
+/* =========================================
+   SAVE PLAY
+========================================= */
+
+function savePlay() {
+
+    if(playSteps.length === 0) {
+
+        alert(
+            "Add at least one step first."
+        );
+
+        return;
+    }
+
+
+    const input =
+        document.getElementById(
+            "playName"
+        );
+
+
+    const name =
+        input.value.trim();
+
+
+    if(name === "") {
+
+        alert(
+            "Give the play a name first."
+        );
+
+        return;
+    }
+
+
+    const saved =
+        JSON.parse(
+            localStorage.getItem(
+                "baseballCoachPlays30"
+            )
+            ||
+            "{}"
+        );
+
+
+    saved[name] =
+        playSteps;
+
+
+    localStorage.setItem(
+        "baseballCoachPlays30",
+        JSON.stringify(saved)
+    );
+
+
+    input.value = "";
+
+
+    showSavedPlays();
+}
+
+
+/* =========================================
+   LOAD PLAY
+========================================= */
+
+function loadPlay(name) {
+
+    stopSequence();
+
+
+    const saved =
+        JSON.parse(
+            localStorage.getItem(
+                "baseballCoachPlays30"
+            )
+            ||
+            "{}"
+        );
+
+
+    if(!saved[name]) {
+        return;
+    }
+
+
+    playSteps =
+        saved[name];
+
+
+    currentStep = 0;
+
+
+    applyFieldState(
+        playSteps[0],
+        false
+    );
+
+
+    document.getElementById(
+        "playName"
+    ).value =
+        name;
+
+
+    updatePlayControls();
+}
+
+
+/* =========================================
+   DELETE PLAY
+========================================= */
+
+function deletePlay(name) {
+
+    const confirmed =
+        confirm(
+            'Delete play "' +
+            name +
+            '"?'
+        );
+
+
+    if(!confirmed) {
+        return;
+    }
+
+
+    const saved =
+        JSON.parse(
+            localStorage.getItem(
+                "baseballCoachPlays30"
+            )
+            ||
+            "{}"
+        );
+
+
+    delete saved[name];
+
+
+    localStorage.setItem(
+        "baseballCoachPlays30",
+        JSON.stringify(saved)
+    );
+
+
+    showSavedPlays();
+}
+
+
+/* =========================================
+   SHOW SAVED PLAYS
+========================================= */
+
+function showSavedPlays() {
+
+    const list =
+        document.getElementById(
+            "savedPlayList"
+        );
+
+
+    list.innerHTML = "";
+
+
+    const saved =
+        JSON.parse(
+            localStorage.getItem(
+                "baseballCoachPlays30"
+            )
+            ||
+            "{}"
+        );
+
+
+    const names =
+        Object.keys(saved);
+
+
+    if(names.length === 0) {
+
+        const message =
+            document.createElement(
+                "div"
+            );
+
+        message.className =
+            "emptyPlay";
+
+        message.textContent =
+            "No saved plays yet.";
+
+        list.appendChild(
+            message
+        );
+
+        return;
+    }
+
+
+    names.forEach(
+        function(name) {
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+
+            row.className =
+                "savedPlayRow";
+
+
+            const load =
+                document.createElement(
+                    "button"
+                );
+
+
+            load.className =
+                "controlButton savedPlayLoad";
+
+
+            load.textContent =
+                name;
+
+
+            load.onclick =
+                function() {
+
+                    loadPlay(name);
+                };
+
+
+            const remove =
+                document.createElement(
+                    "button"
+                );
+
+
+            remove.className =
+                "controlButton savedPlayDelete";
+
+
+            remove.textContent =
+                "×";
+
+
+            remove.onclick =
+                function() {
+
+                    deletePlay(name);
+                };
+
+
+            row.appendChild(load);
+
+            row.appendChild(remove);
+
+            list.appendChild(row);
+        }
+    );
+}
+
+
+/* =========================================
+   PRESETS
+   PRESERVES 2.6 STORAGE
+========================================= */
+
+function getDefensePositions() {
+
+    const positions = {};
+
+
+    Object.entries(players)
+    .forEach(
+        function(entry) {
+
+            positions[entry[0]] =
+                getItemPosition(
+                    entry[1]
+                );
+        }
+    );
+
+
+    return positions;
+}
+
+
+function savePreset() {
+
+    const input =
+        document.getElementById(
+            "presetName"
+        );
+
+
+    const name =
+        input.value.trim();
+
+
+    if(name === "") {
+
+        alert(
+            "Give the preset a name first."
+        );
+
+        return;
+    }
+
+
+    const presets =
+        JSON.parse(
+            localStorage.getItem(
+                "baseballCoachPresets26"
+            )
+            ||
+            "{}"
+        );
+
+
+    presets[name] = {
+
+        defense:
+            getDefensePositions(),
+
+        bases: {
+
+            home:occupied.home,
+
+            first:occupied.first,
+
+            second:occupied.second,
+
+            third:occupied.third
+        },
+
+        ball:
+            getItemPosition(
+                baseball
+            )
+
+    };
+
+
+    localStorage.setItem(
+        "baseballCoachPresets26",
+        JSON.stringify(presets)
+    );
+
+
+    input.value = "";
+
+    showPresets();
+}
+
+
+function loadPreset(name) {
+
+    stopSequence();
+
+
+    const presets =
+        JSON.parse(
+            localStorage.getItem(
+                "baseballCoachPresets26"
+            )
+            ||
+            "{}"
+        );
+
+
+    const preset =
+        presets[name];
+
+
+    if(!preset) {
+        return;
+    }
+
+
+    if(preset.defense) {
+
+        Object.entries(
+            preset.defense
+        )
+        .forEach(
+            function(entry) {
+
+                if(
+                    players[entry[0]]
+                ) {
+
+                    moveItem(
+                        players[entry[0]],
+                        entry[1][0],
+                        entry[1][1]
+                    );
+                }
+            }
+        );
+    }
+
+
+    if(preset.bases) {
+
+        Object.keys(runners)
+        .forEach(
+            function(name) {
+
+                occupied[name] =
+                    Boolean(
+                        preset.bases[name]
+                    );
+
+
+                if(occupied[name]) {
+
+                    resetRunnerPosition(
+                        name
+                    );
+
+                    runners[name].style.display =
+                        "flex";
+
+                } else {
+
+                    runners[name].style.display =
+                        "none";
+                }
+            }
+        );
+    }
+
+
+    if(
+        Array.isArray(
+            preset.ball
+        )
+    ) {
+
+        moveItem(
+            baseball,
+            preset.ball[0],
+            preset.ball[1]
+        );
+
+    } else {
+
+        resetBaseball();
+    }
+
+
+    updateRunnerUI();
+}
+
+
+function deletePreset(name) {
+
+    const confirmed =
+        confirm(
+            'Delete "' +
+            name +
+            '"?'
+        );
+
+
+    if(!confirmed) {
+        return;
+    }
+
+
+    const presets =
+        JSON.parse(
+            localStorage.getItem(
+                "baseballCoachPresets26"
+            )
+            ||
+            "{}"
+        );
+
+
+    delete presets[name];
+
+
+    localStorage.setItem(
+        "baseballCoachPresets26",
+        JSON.stringify(presets)
+    );
+
+
+    showPresets();
+}
+
+
+function showPresets() {
+
+    const list =
+        document.getElementById(
+            "presetList"
+        );
+
+
+    list.innerHTML = "";
+
+
+    const presets =
+        JSON.parse(
+            localStorage.getItem(
+                "baseballCoachPresets26"
+            )
+            ||
+            "{}"
+        );
+
+
+    const names =
+        Object.keys(presets);
+
+
+    if(names.length === 0) {
+
+        const message =
+            document.createElement(
+                "div"
+            );
+
+        message.className =
+            "emptyPreset";
+
+        message.textContent =
+            "No saved presets yet.";
+
+        list.appendChild(
+            message
+        );
+
+        return;
+    }
+
+
+    names.forEach(
+        function(name) {
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+
+            row.className =
+                "presetRow";
+
+
+            const load =
+                document.createElement(
+                    "button"
+                );
+
+
+            load.className =
+                "controlButton presetLoad";
+
+
+            load.textContent =
+                name;
+
+
+            load.onclick =
+                function() {
+
+                    loadPreset(name);
+                };
+
+
+            const remove =
+                document.createElement(
+                    "button"
+                );
+
+
+            remove.className =
+                "controlButton presetDelete";
+
+
+            remove.textContent =
+                "×";
+
+
+            remove.onclick =
+                function() {
+
+                    deletePreset(name);
+                };
+
+
+            row.appendChild(load);
+
+            row.appendChild(remove);
+
+            list.appendChild(row);
+        }
+    );
+}
+
+
+/* =========================================
+   RESET
+========================================= */
+
+function resetBaseball() {
+
+    moveItem(
+        baseball,
+        startingBallPosition[0],
+        startingBallPosition[1]
+    );
+}
+
+
+function resetField() {
+
+    stopSequence();
+
+    applyDefense("normal");
+
+    clearAllRunners();
+
+    resetBaseball();
+
+    playSteps = [];
+
+    currentStep = -1;
+
+    updatePlayControls();
+}
+
+
+/* =========================================
+   START APP
+========================================= */
+
+createDefense();
+
+
+Object.keys(runners)
+.forEach(
+    function(name) {
+
+        resetRunnerPosition(
+            name
+        );
+
+        makeDraggable(
+            runners[name]
+        );
+    }
+);
+
+
+resetBaseball();
+
+makeDraggable(baseball);
+
+updateRunnerUI();
+
+updatePlayControls();
+
+showSavedPlays();
+
+showPresets();
+
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+        navigator.serviceWorker.register("./service-worker.js");
+    });
+}
+</script>
+</body>
+</html>
